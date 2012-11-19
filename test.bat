@@ -38,5 +38,9 @@ echo Attempting to create existing branch with old name:
 hg branch b
 echo Attempting to create existing branch with new name:
 hg branch y
+echo.
+echo Updating to pre-.hgbranches
+hg update 2 -C
+hg log --template "Branch {branch}: {desc}\n"
 cd ..
 rd test /s/q

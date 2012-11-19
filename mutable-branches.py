@@ -12,10 +12,10 @@ def uisetup(ui):
     extensions.wrapcommand(commands.table, 'branch', branch_wrapper)
 
 def branch_wrapper(orig, ui, *args, **kwargs):
+    """Remove the "branches are permanent and global" warning from branch's output."""
     ui.pushbuffer()
     ret = orig(ui, *args, **kwargs)
-    out = ui.popbuffer()
-    lines = out.splitlines(True)
+    lines = ui.popbuffer().splitlines(True)
     if lines[-1].startswith("(branches are permanent and global"): lines.pop()
     ui.write(''.join(lines))
     return ret

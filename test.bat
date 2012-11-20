@@ -21,6 +21,8 @@ hg ci -m"added .hgbranches"
 echo.
 echo After .hgbranches:
 hg log --template "Branch {branch}: {desc}\n"
+echo Current branch is y, renamed from b:
+hg branch
 echo.
 hg update x
 echo >x
@@ -42,5 +44,8 @@ echo.
 echo Updating to pre-.hgbranches
 hg update 2 -C
 hg log --template "Branch {branch}: {desc}\n"
+hg update x
+echo Current branch, after swithcing to x, renamed from a:
+hg branch
 cd ..
 rd test /s/q

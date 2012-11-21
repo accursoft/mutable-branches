@@ -6,7 +6,7 @@ If the branch name contains spaces, it should be quoted.
 Only the most recently checked in version of .hgbranches is used.
 """
 
-from mercurial import dispatch, extensions, commands
+from mercurial import extensions, commands
 
 def uisetup(ui):
     extensions.wrapcommand(commands.table, 'branch', branch_wrapper)

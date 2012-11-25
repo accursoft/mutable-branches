@@ -9,7 +9,7 @@ In case of conflict, the most recent head wins.
 """
 
 import os, shlex
-from mercurial import extensions, commands, changelog, localrepo
+from mercurial import extensions, commands, changelog, localrepo, util
 
 def uisetup(ui):
     extensions.wrapcommand(commands.table, 'branch', branch_wrapper)
@@ -68,6 +68,8 @@ def reposetup(ui, repo):
 
 def branch_wrapper(orig, ui, *args, **kwargs):
     """Remove the "branches are permanent and global" warning from branch's output."""
+    if len(args) > 1 and args[1] in _hgbranches:
+        raise util.Abort("branch " + args[1] + " has been renamed to " + _hgbranches[args[1]])
     ui.pushbuffer()
     ret = orig(ui, *args, **kwargs)
     lines = ui.popbuffer().splitlines(True)

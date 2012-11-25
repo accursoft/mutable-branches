@@ -48,9 +48,16 @@ def reposetup(ui, repo):
     if branch in changes:
         dirstate.setbranch(changes[branch])
 
-    #delete the old branch cache
-    if repo.opener.exists("cache/branchheads"):
-        os.remove(repo.opener.join("cache/branchheads"))
+    #update branchheads
+    if repo.vfs.exists("cache/branchheads"):
+        new = []
+        with repo.vfs("cache/branchheads") as old:
+            new.append(old.next()) #tip tracker
+            for line in old:
+                node, branch = line.strip().split(" ", 1)
+                if branch in changes: branch = changes[branch]
+                new.append(node + " " + branch + "\n")
+        repo.vfs.write("cache/branchheads", "".join(new))
 
     #wrap changelog methods
     extensions.wrapfunction(changelog.changelog, 'add', add_wrapper)

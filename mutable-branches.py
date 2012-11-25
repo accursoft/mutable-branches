@@ -32,7 +32,7 @@ def reposetup(ui, repo):
     if repo.vfs.exists("cache/hgbranches"):
         changes = {}
         previous = eval(repo.vfs("cache/hgbranches").read())
-        for old, new in hgbranches.items():
+        for old, new in _hgbranches.items():
             if old in previous:
                 #has a previous renaming changed?
                 if previous[old] != new: changes[previous[old]] = new
@@ -41,6 +41,9 @@ def reposetup(ui, repo):
                 changes[old] = new
     else:
         changes = _hgbranches
+
+    if changes:
+        repo.vfs.write("cache/hgbranches", repr(_hgbranches))
 
     #update dirstate
     dirstate = repo.dirstate

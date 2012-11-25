@@ -27,7 +27,27 @@ def reposetup(ui, repo):
             for line in repo[head]['.hgbranches'].data().splitlines():
                 items = shlex.split(line)
                 _hgbranches[items[0]] = items[1]
-                
+
+    #build a list of changes from the last run
+    if repo.vfs.exists("cache/hgbranches"):
+        changes = {}
+        previous = eval(repo.vfs("cache/hgbranches").read())
+        for old, new in hgbranches.items():
+            if old in previous:
+                #has a previous renaming changed?
+                if previous[old] != new: changes[previous[old]] = new
+            else:
+                #new renaming
+                changes[old] = new
+    else:
+        changes = _hgbranches
+
+    #update dirstate
+    dirstate = repo.dirstate
+    branch = dirstate.branch()
+    if branch in changes:
+        dirstate.setbranch(changes[branch])
+
     #delete the old branch cache
     if repo.opener.exists("cache/branchheads"):
         os.remove(repo.opener.join("cache/branchheads"))

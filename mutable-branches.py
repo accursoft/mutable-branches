@@ -3,9 +3,12 @@
 To start renaming branches, create a file called .hgbranches in the root of the working directory.
 Each line in .hgbranches consists of a space-delimited pair such as oldBranch newBranch.
 If the branch name contains spaces, it should be quoted.
+Renamings can be kept local by putting them in .hg/.hgbranches.
 
-Mutable-branches merges the most recent .hgbranches from each head in the repository.
-In case of conflict, the most recent head wins.
+.. container:: verbose
+
+    Mutable-branches merges the most recent .hgbranches from each head in the repository.
+    In case of conflict, the most recent head wins. .hg/.hgbranches always overrides the repository .hgbranches.
 """
 
 import os, shlex

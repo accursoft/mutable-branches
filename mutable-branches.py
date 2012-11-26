@@ -47,6 +47,11 @@ def reposetup(ui, repo):
             else:
                 #new renaming
                 changes[old] = new
+        
+        #check for deleted renamings
+        for old in previous:
+            if not old in _hgbranches:
+                changes[previous[old]] = old
     else:
         changes = _hgbranches
 

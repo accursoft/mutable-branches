@@ -59,5 +59,13 @@ echo.
 echo c z>.hg\.hgbranches
 echo After local .hgbranches:
 hg log --template "Branch {branch}: {desc}\n"
+echo Current branch is z, was renamed from c:
+hg branch
+echo.
+echo Deleting local .hgbranches:
+del .hg\.hgbranches
+hg log --template "Branch {branch}: {desc}\n"
+echo Current branch is c, was renamed to z:
+hg branch
 cd ..
 rd test /s/q

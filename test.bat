@@ -1,7 +1,8 @@
 @echo off
 hg init test
-copy test.hgbranches test\.hgbranches >nul
 cd test
+echo a x>.hgbranches
+echo b y>>.hgbranches
 echo >d
 hg add d
 hg ci -m"default branch"
@@ -47,5 +48,16 @@ hg log --template "Branch {branch}: {desc}\n"
 hg update x
 echo Current branch, after swithcing to x, renamed from a:
 hg branch
+echo >c
+hg branch c
+hg add c
+hg ci -m"branch c, will be locally renamed to z"
+echo.
+echo Before local .hgbranches:
+hg log --template "Branch {branch}: {desc}\n"
+echo.
+echo c z>.hg\.hgbranches
+echo After local .hgbranches:
+hg log --template "Branch {branch}: {desc}\n"
 cd ..
 rd test /s/q

@@ -14,6 +14,12 @@ from mercurial import extensions, commands, changelog, localrepo, util
 def uisetup(ui):
     extensions.wrapcommand(commands.table, 'branch', branch_wrapper)
 
+def parse_hgbranches(lines):
+    global _hgbranches
+    for line in lines:
+        items = shlex.split(line)
+        _hgbranches[items[0]] = items[1]
+
 def reposetup(ui, repo):
     #only interested in local repositories
     if not isinstance(repo, localrepo.localrepository): return
@@ -24,9 +30,11 @@ def reposetup(ui, repo):
     _hgbranches = {}
     for head in reversed(repo.heads()):
         if '.hgbranches' in repo[head]:
-            for line in repo[head]['.hgbranches'].data().splitlines():
-                items = shlex.split(line)
-                _hgbranches[items[0]] = items[1]
+            parse_hgbranches(repo[head]['.hgbranches'].data().splitlines())
+
+    #read .hg/.hgbranches
+    if repo.vfs.exists(".hgbranches"):
+        parse_hgbranches(repo.vfs(".hgbranches"))
 
     #build a list of changes from the last run
     if repo.vfs.exists("cache/hgbranches"):

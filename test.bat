@@ -1,19 +1,19 @@
 @echo off
 hg init test
 cd test
-echo a x>.hgbranches
-echo b y>>.hgbranches
+echo "a a" "x.x">.hgbranches
+echo "b,b" "y y">>.hgbranches
 echo >d
 hg add d
 hg ci -m"default branch"
-hg branch a
+hg branch "a a"
 echo >a
 hg add a
-hg ci -m"branch a, will be renamed to x"
-hg branch b
+hg ci -m"branch a a, will be renamed to x.x"
+hg branch "b,b"
 echo >b
 hg add b
-hg ci -m"branch b, will be renamed to y"
+hg ci -m"branch b,b, will be renamed to y y"
 echo.
 echo Before .hgbranches:
 hg log --template "Branch {branch}: {desc}\n"
@@ -22,13 +22,13 @@ hg ci -m"added .hgbranches"
 echo.
 echo After .hgbranches:
 hg log --template "Branch {branch}: {desc}\n"
-echo Current branch is y, renamed from b:
+echo Current branch is y y, renamed from b,b:
 hg branch
 echo.
-hg update x
+hg update "x.x"
 echo >x
 hg add x
-hg ci -m"branch x, was a"
+hg ci -m"branch x.x, was a a"
 hg update default
 echo >d2
 hg add d2
@@ -38,15 +38,15 @@ echo Using a renamed branch:
 hg log --template "Branch {branch}: {desc}\n"
 echo.
 echo Attempting to create existing branch with old name:
-hg branch b
+hg branch "b,b"
 echo Attempting to create existing branch with new name:
-hg branch y
+hg branch "y y"
 echo.
 echo Updating to pre-.hgbranches
 hg update 2 -C
 hg log --template "Branch {branch}: {desc}\n"
-hg update x
-echo Current branch, after swithcing to x, renamed from a:
+hg update "x.x"
+echo Current branch is x.x, renamed from a a:
 hg branch
 echo >c
 hg branch c

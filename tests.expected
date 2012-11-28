@@ -1,0 +1,76 @@
+marked working directory as branch a a
+marked working directory as branch b,b
+
+Before .hgbranches:
+Branch b,b: branch b,b, will be renamed to y y
+Branch a a: branch a a, will be renamed to x.x
+Branch default: default branch
+
+After .hgbranches:
+Branch y y: added .hgbranches
+Branch y y: branch b,b, will be renamed to y y
+Branch x.x: branch a a, will be renamed to x.x
+Branch default: default branch
+Current branch is y y, renamed from b,b:
+y y
+
+0 files updated, 0 files merged, 2 files removed, 0 files unresolved
+0 files updated, 0 files merged, 2 files removed, 0 files unresolved
+
+Using a renamed branch:
+Branch default: default branch
+Branch x.x: branch x.x, was a a
+Branch y y: added .hgbranches
+Branch y y: branch b,b, will be renamed to y y
+Branch x.x: branch a a, will be renamed to x.x
+Branch default: default branch
+
+Attempting to create existing branch with old name:
+abort: branch b,b has been renamed to y y
+Attempting to create existing branch with new name:
+abort: a branch of the same name already exists
+(use 'hg update' to switch to it)
+
+Updating to pre-.hgbranches
+2 files updated, 0 files merged, 1 files removed, 0 files unresolved
+Branch default: default branch
+Branch x.x: branch x.x, was a a
+Branch y y: added .hgbranches
+Branch y y: branch b,b, will be renamed to y y
+Branch x.x: branch a a, will be renamed to x.x
+Branch default: default branch
+1 files updated, 0 files merged, 1 files removed, 0 files unresolved
+Current branch is x.x, renamed from a a:
+x.x
+marked working directory as branch c
+
+Before local .hgbranches:
+Branch c: branch c, will be locally renamed to z
+Branch default: default branch
+Branch x.x: branch x.x, was a a
+Branch y y: added .hgbranches
+Branch y y: branch b,b, will be renamed to y y
+Branch x.x: branch a a, will be renamed to x.x
+Branch default: default branch
+
+After local .hgbranches:
+Branch z: branch c, will be locally renamed to z
+Branch default: default branch
+Branch x.x: branch x.x, was a a
+Branch y y: added .hgbranches
+Branch y y: branch b,b, will be renamed to y y
+Branch x.x: branch a a, will be renamed to x.x
+Branch default: default branch
+Current branch is z, was renamed from c:
+z
+
+Deleting local .hgbranches:
+Branch c: branch c, will be locally renamed to z
+Branch default: default branch
+Branch x.x: branch x.x, was a a
+Branch y y: added .hgbranches
+Branch y y: branch b,b, will be renamed to y y
+Branch x.x: branch a a, will be renamed to x.x
+Branch default: default branch
+Current branch is c, was renamed to z:
+c

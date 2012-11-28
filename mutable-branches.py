@@ -13,6 +13,7 @@ Renamings can be kept local by putting them in .hg/.hgbranches.
 
 import os, shlex
 from mercurial import extensions, commands, changelog, localrepo, util
+from mercurial.node import hex
 
 def uisetup(ui):
     extensions.wrapcommand(commands.table, 'branch', branch_wrapper)
@@ -26,13 +27,30 @@ def reposetup(ui, repo):
     #only interested in local repositories
     if not isinstance(repo, localrepo.localrepository): return
 
-    #add .hgbranches from each head
-    #conflicting renames from newer heads overwrite older heads
     global _hgbranches
     _hgbranches = {}
-    for head in reversed(repo.heads()):
-        if '.hgbranches' in repo[head]:
-            _parse(repo[head]['.hgbranches'].data().splitlines())
+
+    #attempt to read .hgbranches from cache
+    if repo.vfs.exists("cache/hgbranches"):
+        try:
+            cache = repo.vfs("cache/hgbranches").read().splitlines()
+            if cache[0] == hex(repo.changelog.tip()): _parse(cache[1:])
+        except:
+            ui.warn("hgbranches cache corrupt, it will be deleted\n")
+            os.remove(repo.vfs.join("cache/hgbranches"))
+
+    #read .hgbranches from repo if not cached
+    #conflicting renames from newer heads overwrite older heads
+    if not _hgbranches:
+        for head in reversed(repo.heads()):
+            if '.hgbranches' in repo[head]:
+                _parse(repo[head]['.hgbranches'].data().splitlines())
+
+    #write .hgbranches cache
+    with repo.vfs("cache/hgbranches", 'w') as cache:
+        cache.write(hex(repo.changelog.tip()) + '\n')
+        for old, new in _hgbranches.items():
+            cache.write('"%s" "%s"\n' % (old,new))
 
     #read .hg/.hgbranches
     if repo.vfs.exists(".hgbranches"):

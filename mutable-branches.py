@@ -19,9 +19,15 @@ def uisetup(ui):
     extensions.wrapcommand(commands.table, 'branch', branch_wrapper)
 
 def _parse(lines):
+    _deserialise(_hgbranches, lines)
+
+def _serialise(hgbranches):
+    return '\n'.join('"%s" "%s"' % (old,new) for old, new in hgbranches.items())
+
+def _deserialise(hgbranches, lines):
     for line in lines:
         items = shlex.split(line)
-        _hgbranches[items[0]] = items[1]
+        hgbranches[items[0]] = items[1]
 
 def reposetup(ui, repo):
     #only interested in local repositories
@@ -49,8 +55,7 @@ def reposetup(ui, repo):
     #write .hgbranches cache
     with repo.vfs("cache/hgbranches", 'w') as cache:
         cache.write(hex(repo.changelog.tip()) + '\n')
-        for old, new in _hgbranches.items():
-            cache.write('"%s" "%s"\n' % (old,new))
+        cache.write(_serialise(_hgbranches))
 
     #read .hg/.hgbranches
     if repo.vfs.exists(".hgbranches"):
@@ -59,7 +64,11 @@ def reposetup(ui, repo):
     #build a list of changes from the last run
     if repo.vfs.exists("hgbranches-prev"):
         changes = {}
-        previous = eval(repo.vfs("hgbranches-prev").read())
+        previous = {}
+        try:
+            _deserialise(previous, repo.vfs("hgbranches-prev"))
+        except:
+            raise util.Abort(".hg/hgbranches-prev is corrupt")
         for old, new in _hgbranches.items():
             if old in previous:
                 #has a previous renaming changed?
@@ -76,7 +85,7 @@ def reposetup(ui, repo):
         changes = _hgbranches
 
     if changes:
-        repo.vfs.write("hgbranches-prev", repr(_hgbranches))
+        repo.vfs.write("hgbranches-prev", _serialise(_hgbranches))
 
     #update dirstate
     dirstate = repo.dirstate

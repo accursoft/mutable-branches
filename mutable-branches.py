@@ -46,7 +46,7 @@ def reposetup(ui, repo):
             ui.warn("hgbranches cache corrupt, it will be recreated\n")
             os.remove(repo.vfs.join("cache/hgbranches"))
 
-    #read .hgbranches from repo if not cached
+    #otherwise read .hgbranches from repo
     #conflicting renames from newer heads overwrite older heads
     if not _hgbranches:
         for head in reversed(repo.heads()):
@@ -57,11 +57,10 @@ def reposetup(ui, repo):
                     ui.warn('"%s" reading .hgbranches\n' % e[0])
                     raise util.Abort(".hgbranches is corrupt.\n"
                     "Please disable mutable-branches and fix it.")
-
-    #write .hgbranches cache
-    with repo.vfs("cache/hgbranches", 'w') as cache:
-        cache.write(hex(repo.changelog.tip()) + '\n')
-        cache.write(_serialise(_hgbranches))
+        #write .hgbranches cache
+        with repo.vfs("cache/hgbranches", 'w') as cache:
+            cache.write(hex(repo.changelog.tip()) + '\n')
+            cache.write(_serialise(_hgbranches))
 
     #read .hg/.hgbranches
     if repo.vfs.exists(".hgbranches"):

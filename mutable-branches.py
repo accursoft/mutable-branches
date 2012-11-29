@@ -41,8 +41,9 @@ def reposetup(ui, repo):
         try:
             cache = repo.vfs("cache/hgbranches").read().splitlines()
             if cache[0] == hex(repo.changelog.tip()): _parse(cache[1:])
-        except:
-            ui.warn("hgbranches cache corrupt, it will be deleted\n")
+        except Exception as e:
+            ui.debug('"%s" reading hgbranches cache\n' % e[0])
+            ui.warn("hgbranches cache corrupt, it will be recreated\n")
             os.remove(repo.vfs.join("cache/hgbranches"))
 
     #read .hgbranches from repo if not cached
@@ -50,7 +51,12 @@ def reposetup(ui, repo):
     if not _hgbranches:
         for head in reversed(repo.heads()):
             if '.hgbranches' in repo[head]:
-                _parse(repo[head]['.hgbranches'].data().splitlines())
+                try:
+                    _parse(repo[head]['.hgbranches'].data().splitlines())
+                except Exception as e:
+                    ui.warn('"%s" reading .hgbranches\n' % e[0])
+                    raise util.Abort(".hgbranches is corrupt.\n"
+                    "Please disable mutable-branches and fix it.")
 
     #write .hgbranches cache
     with repo.vfs("cache/hgbranches", 'w') as cache:
@@ -59,7 +65,11 @@ def reposetup(ui, repo):
 
     #read .hg/.hgbranches
     if repo.vfs.exists(".hgbranches"):
-        _parse(repo.vfs(".hgbranches"))
+        try:
+            _parse(repo.vfs(".hgbranches"))
+        except Exception as e:
+            ui.warn('"%s" reading local .hgbranches\n' % e[0])
+            raise util.Abort("local .hgbranches is corrupt")
 
     #build a list of changes from the last run
     if repo.vfs.exists("hgbranches-prev"):
@@ -67,8 +77,12 @@ def reposetup(ui, repo):
         previous = {}
         try:
             _deserialise(previous, repo.vfs("hgbranches-prev"))
-        except:
-            raise util.Abort(".hg/hgbranches-prev is corrupt")
+        except Exception as e:
+            ui.warn('"%s" reading .hg/.hgbranches-prev\n' % e[0])
+            raise util.Abort(".hg/hgbranches-prev is corrupt.\n"
+            "If you delete it, .hg/cache/branchheads should also be deleted.\n"
+            "You may also need to reset the current branch.")
+
         for old, new in _hgbranches.items():
             if old in previous:
                 #has a previous renaming changed?

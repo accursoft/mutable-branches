@@ -58,9 +58,13 @@ def reposetup(ui, repo):
                     raise util.Abort(".hgbranches is corrupt.\n"
                     "Please disable mutable-branches and fix it.")
         #write .hgbranches cache
-        with repo.vfs("cache/hgbranches", 'w') as cache:
-            cache.write(hex(repo.changelog.tip()) + '\n')
-            cache.write(_serialise(_hgbranches))
+        try:
+            with repo.vfs("cache/hgbranches", 'w') as cache:
+                cache.write(hex(repo.changelog.tip()) + '\n')
+                cache.write(_serialise(_hgbranches))
+        except Exception as e:
+            ui.debug('"%s" writing hgbranches cache\n' % e[0])
+            ui.warn("The hgbranches cache could not be written.\n")
 
     #read .hg/.hgbranches
     if repo.vfs.exists(".hgbranches"):

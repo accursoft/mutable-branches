@@ -83,7 +83,7 @@ def reposetup(ui, repo):
         except Exception as e:
             ui.warn('"%s" reading .hg/.hgbranches-prev\n' % e[0])
             raise util.Abort(".hg/hgbranches-prev is corrupt.\n"
-            "If you delete it, .hg/cache/branchheads should also be deleted.\n"
+            "If you delete it, .hg/cache/branchheads* should also be deleted.\n"
             "You may also need to reset the current branch.")
 
         for old, new in _hgbranches.items():
@@ -111,15 +111,24 @@ def reposetup(ui, repo):
         dirstate.setbranch(changes[branch])
 
     #update branchheads
-    if repo.vfs.exists("cache/branchheads"):
+    branchheads = ["branchheads"]
+    try:
+        #process the filtered branchhead caches introduced in 2.5
+        from mercurial import repoview
+        branchheads.extend("%s-%s" % (branchheads[0], filter) for filter in repoview.filtertable)
+    except ImportError:
+        pass
+
+    for file in ("cache/" + file for file in branchheads):
+        if not repo.vfs.exists(file): continue
         new = []
-        with repo.vfs("cache/branchheads") as old:
+        with repo.vfs(file) as old:
             new.append(old.next()) #tip tracker
             for line in old:
                 node, branch = line.strip().split(" ", 1)
                 if branch in changes: branch = changes[branch]
                 new.append(node + " " + branch + "\n")
-        repo.vfs.write("cache/branchheads", "".join(new))
+        repo.vfs.write(file, "".join(new))
 
     #wrap changelog methods
     extensions.wrapfunction(changelog.changelog, 'add', add_wrapper)
@@ -152,5 +161,5 @@ def read_wrapper(orig, ui, *args, **kwargs):
     if branch in _hgbranches: ret[5]['branch'] = _hgbranches[branch]
     return ret
 
-testedwith = '2.3 2.4'
+testedwith = '2.3 2.4 2.5'
 buglink = 'http://code.accursoft.com/mutable-branches/issues'

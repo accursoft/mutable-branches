@@ -104,31 +104,31 @@ def reposetup(ui, repo):
     if changes:
         repo.vfs.write("hgbranches-prev", _serialise(_hgbranches))
 
-    #update dirstate
-    dirstate = repo.dirstate
-    branch = dirstate.branch()
-    if branch in changes:
-        dirstate.setbranch(changes[branch])
+        #update dirstate
+        dirstate = repo.dirstate
+        branch = dirstate.branch()
+        if branch in changes:
+            dirstate.setbranch(changes[branch])
 
-    #update branchheads
-    branchheads = ["branchheads"]
-    try:
-        #process the filtered branchhead caches introduced in 2.5
-        from mercurial import repoview
-        branchheads.extend("%s-%s" % (branchheads[0], filter) for filter in repoview.filtertable)
-    except ImportError:
-        pass
+        #update branchheads
+        branchheads = ["branchheads"]
+        try:
+            #process the filtered branchhead caches introduced in 2.5
+            from mercurial import repoview
+            branchheads.extend("%s-%s" % (branchheads[0], filter) for filter in repoview.filtertable)
+        except ImportError:
+            pass
 
-    for file in ("cache/" + file for file in branchheads):
-        if not repo.vfs.exists(file): continue
-        new = []
-        with repo.vfs(file) as old:
-            new.append(old.next()) #tip tracker
-            for line in old:
-                node, branch = line.strip().split(" ", 1)
-                if branch in changes: branch = changes[branch]
-                new.append(node + " " + branch + "\n")
-        repo.vfs.write(file, "".join(new))
+        for file in ("cache/" + file for file in branchheads):
+            if not repo.vfs.exists(file): continue
+            new = []
+            with repo.vfs(file) as old:
+                new.append(old.next()) #tip tracker
+                for line in old:
+                    node, branch = line.strip().split(" ", 1)
+                    if branch in changes: branch = changes[branch]
+                    new.append(node + " " + branch + "\n")
+            repo.vfs.write(file, "".join(new))
 
     #wrap changelog methods
     extensions.wrapfunction(changelog.changelog, 'add', add_wrapper)

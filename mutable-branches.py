@@ -161,5 +161,5 @@ def read_wrapper(orig, ui, *args, **kwargs):
     if branch in _hgbranches: ret[5]['branch'] = _hgbranches[branch]
     return ret
 
-testedwith = '2.3 2.4 2.5'
+testedwith = '2.3 2.4 2.5 2.6 2.7'
 buglink = 'http://code.accursoft.com/mutable-branches/issues'

@@ -116,6 +116,8 @@ def reposetup(ui, repo):
             #process the filtered branchhead caches introduced in 2.5
             from mercurial import repoview
             branchheads.extend("%s-%s" % (branchheads[0], filter) for filter in repoview.filtertable)
+            #process the new branchhead cache format introduced in 2.9
+            branchheads.extend("branch2-" + filter for filter in repoview.filtertable)
         except ImportError:
             pass
 
@@ -125,9 +127,13 @@ def reposetup(ui, repo):
             with repo.vfs(file) as old:
                 new.append(old.next()) #tip tracker
                 for line in old:
-                    node, branch = line.strip().split(" ", 1)
+                    if "branch2" in file:
+                        rest1, rest2, branch = line.strip().split(" ", 2)
+                        rest = rest1 + " " + rest2
+                    else:
+                        rest, branch = line.strip().split(" ", 1)
                     if branch in changes: branch = changes[branch]
-                    new.append(node + " " + branch + "\n")
+                    new.append(rest + " " + branch + "\n")
             repo.vfs.write(file, "".join(new))
 
     #wrap changelog methods
@@ -161,5 +167,5 @@ def read_wrapper(orig, ui, *args, **kwargs):
     if branch in _hgbranches: ret[5]['branch'] = _hgbranches[branch]
     return ret
 
-testedwith = '2.3 2.4 2.5 2.6 2.7'
+testedwith = '2.3 2.4 2.5 2.6 2.7 2.8 2.9'
 buglink = 'http://code.accursoft.com/mutable-branches/issues'

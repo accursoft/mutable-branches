@@ -1,4 +1,4 @@
-"""Rename named branches.
+"""rename named branches.
 
 To start renaming branches, create a file called .hgbranches in the root of the working directory.
 Each line in .hgbranches consists of a space-delimited pair such as oldBranch newBranch.
